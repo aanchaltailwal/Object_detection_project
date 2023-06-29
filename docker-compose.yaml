@@ -1,22 +1,51 @@
-version: '3'
+version: "3.8"
 services:
   frontend:
-    build:  frontend
+    container_name: frontend
+    image: frontend_image:2.0
+    networks:
+      - object-detection
     ports:
-      - 80:80
+      - "8082:8082"
     depends_on:
+      - yolo5
       - mongo
+
+  yolo5:
+    container_name: yolo5
+    image: yolo5_image:2.0
+    networks:
+      - object-detection
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    ports:
+      - "8081:8081"
 
   mongo:
-    image: mongo
+    container_name: mongodb
+    image: mongo:latest
+    networks:
+      - object-detection
+    restart: always
     ports:
-      - 27017:27017
+      - "27017:27017"
+    volumes:
+      - mongo:/data/db
 
-  polybot:
-    build: polybot
+  telegram-bot:
+    container_name: telegram-bot
+    image: bot_image:2.0
+    networks:
+      - object-detection
     depends_on:
-      - mongo
-  yolo5:
-    build: yolo5
-    depends_on:
-      - mongo
+      - yolo5
+
+volumes:
+  mongo:
+    driver: local
+
+networks:
+  object-detection:
+    name: object-detection
+    driver: bridge
