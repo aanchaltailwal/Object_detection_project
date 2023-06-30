@@ -5,9 +5,7 @@ import requests
 from collections import Counter
 
 YOLO_URL = 'http://yolo5:8081'
-
 class Bot:
-
     def __init__(self, token):
         self.bot = telebot.TeleBot(token, threaded=False)
         self.bot.set_update_listener(self._bot_internal_handler)
@@ -73,8 +71,32 @@ class QuoteBot(Bot):
 
 
 class ObjectDetectionBot(Bot):
-    pass
+    def handle_message(self, message):
+        logger.info(f'Incoming message: {message}')
 
+        if self.is_current_msg_photo():
+            photo_path = self.download_user_photo()
+
+            res = requests.post(f'{YOLO_URL}/predict', files={
+                'file': (photo_path, open(photo_path, 'rb'), 'image/png')})
+
+            if res.status_code == 200:
+                detections = res.json()
+                logger.info(f'response from detect service with {detections}')
+
+                """calc summary"""
+                element_counts = Counter([l['class'] for l in detections])
+                summary = 'Objects Detected:\n'
+                for element, count in element_counts.items():
+                    summary += f"{element}: {count}\n"
+
+                self.send_text(summary)
+
+            else:
+                self.send_text('Failed to perform object detection. Please try again later.')
+
+        else:
+            self.send_text('please send a photo for object detection.')
 
 if __name__ == '__main__':
     # TODO - in the 'polyBot' dir, create a file called .telegramToken and store your bot token there.
