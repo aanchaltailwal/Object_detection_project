@@ -16,6 +16,7 @@ pipeline {
                     docker build -t aanchal-yolo5 .
                     docker tag aanchal-yolo5:latest 854171615125.dkr.ecr.eu-north-1.amazonaws.com/aanchal-yolo5:0.0.${BUILD_NUMBER}
                     docker push 854171615125.dkr.ecr.eu-north-1.amazonaws.com/aanchal-yolo5:0.0.${BUILD_NUMBER}
+                '''
             }
         }
     }
