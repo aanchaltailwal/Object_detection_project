@@ -35,7 +35,7 @@ services:
 
   telegram-bot:
     container_name: telegram-bot
-    image: bot_image:2.0
+    image: bot_image:2.5
     networks:
       - object-detection
     depends_on:
