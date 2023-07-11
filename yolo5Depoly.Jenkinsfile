@@ -24,10 +24,9 @@ pipeline {
         }
         stage('Deploy in k8s') {
             steps {
-
                 sh '''
                     echo authenticate
-                    cd "/var/lib/jenkins/workspace/Yolo5Build"
+                    cd "/var/lib/jenkins/workspace/Yolo5Build/k8s"
                     kubectl apply -f yolo5.yaml
                 '''
             }
